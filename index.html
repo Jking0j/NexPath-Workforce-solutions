@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NextPath — Recruitment &amp; Logistics</title>
+<meta name="description" content="NextPath places the people you hire and moves the goods you ship — one accountable partner for talent and freight.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700;800&family=Inter:wght@400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ivory:#FCFBF8;      /* warm white — dominant base */
+    --white:#FFFFFF;      /* cards */
+    --paper-2:#F4F1E8;    /* soft ivory band */
+    --char:#16161B;       /* charcoal — dark contrast bands */
+    --char-2:#1E1E25;     /* footer / raised dark */
+    --ink:#1C1C22;        /* body text on light */
+    --ink-soft:#6B6A72;
+    --gold:#C6A24C;       /* bright gold — fills, rules, markers */
+    --gold-lt:#DCBD75;    /* hover / on-dark */
+    --gold-dk:#96741F;    /* deep antique gold — text on white (legible) */
+    --line:#E8E3D6;       /* warm hairline on light */
+    --line-dk:rgba(255,255,255,.12);
+    --maxw:1180px;
+    --r:5px;
+    --r-btn:6px;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  @media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+  body{margin:0;background:var(--ivory);color:var(--ink);
+    font-family:"Inter",system-ui,sans-serif;font-size:17px;line-height:1.62;
+    -webkit-font-smoothing:antialiased;overflow-x:hidden}
+  h1,h2,h3,h4{font-family:"Archivo",sans-serif;line-height:1.04;letter-spacing:-.02em;margin:0;font-weight:700}
+  a{color:inherit}
+  .wrap{max-width:var(--maxw);margin:0 auto;padding:0 32px}
+  section{position:relative}
+
+  .eyebrow{display:inline-flex;align-items:center;gap:12px;
+    font-family:"Space Mono",monospace;font-size:12px;letter-spacing:.22em;
+    text-transform:uppercase;color:var(--ink-soft)}
+  .eyebrow::before{content:"";width:26px;height:2px;background:var(--gold)}
+  .eyebrow.on-dark{color:#A79E8C}
+
+  /* ============ NAV ============ */
+  header.nav{position:sticky;top:0;z-index:60;background:rgba(252,251,248,.86);backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
+  .nav .wrap{display:flex;align-items:center;justify-content:space-between;height:72px}
+  .brand{display:flex;align-items:center;gap:12px;color:var(--ink);text-decoration:none;font-family:"Archivo";font-weight:800;font-size:20px;letter-spacing:-.02em}
+  .nav-links{display:flex;align-items:center;gap:34px}
+  .nav-links a{color:#4A4A52;text-decoration:none;font-size:14.5px;font-weight:500;transition:color .2s}
+  .nav-links a:hover{color:var(--ink)}
+  .nav-cta{background:var(--gold);color:var(--char)!important;font-weight:600;padding:10px 20px;border-radius:var(--r-btn);transition:background .2s,transform .2s}
+  .nav-cta:hover{background:var(--gold-lt);transform:translateY(-1px)}
+  .menu-btn{display:none;background:none;border:0;color:var(--ink);cursor:pointer;padding:6px}
+  @media(max-width:880px){
+    .nav-links{display:none}.menu-btn{display:block}
+    .nav-links.open{display:flex;flex-direction:column;align-items:flex-start;position:absolute;top:72px;left:0;right:0;background:var(--white);padding:22px 32px;gap:20px;border-bottom:1px solid var(--line);box-shadow:0 20px 40px rgba(0,0,0,.06)}
+  }
+
+  /* ============ HERO ============ */
+  .hero{background:var(--ivory);overflow:hidden;padding:104px 0 116px;position:relative;border-bottom:1px solid var(--line)}
+  .hero-grid{position:absolute;inset:0;opacity:.6;
+    background-image:linear-gradient(rgba(28,28,34,.05) 1px,transparent 1px),linear-gradient(90deg,rgba(28,28,34,.05) 1px,transparent 1px);
+    background-size:60px 60px;
+    -webkit-mask-image:radial-gradient(130% 100% at 78% 0%,#000 28%,transparent 72%);
+            mask-image:radial-gradient(130% 100% at 78% 0%,#000 28%,transparent 72%)}
+  .hero::after{content:"";position:absolute;top:-20%;right:-10%;width:55%;height:120%;z-index:0;
+    background:radial-gradient(closest-side,rgba(198,162,76,.14),transparent 70%)}
+  .hero .wrap{position:relative;z-index:2}
+  .hero h1{font-size:clamp(2.7rem,6.4vw,5.4rem);font-weight:800;max-width:15ch;margin:28px 0 0;letter-spacing:-.035em}
+  .hero h1 em{font-style:normal;color:var(--gold-dk)}
+  .hero p.lead{max-width:50ch;color:#54535B;font-size:clamp(1.02rem,1.5vw,1.22rem);margin:28px 0 0}
+  .hero-cta{display:flex;gap:14px;flex-wrap:wrap;margin-top:38px}
+  .btn{display:inline-flex;align-items:center;gap:10px;text-decoration:none;font-weight:600;font-size:15.5px;padding:15px 28px;border-radius:var(--r-btn);border:0;cursor:pointer;transition:transform .2s,background .2s,box-shadow .2s}
+  .btn svg{transition:transform .2s}.btn:hover svg{transform:translateX(4px)}
+  .btn-primary{background:var(--gold);color:var(--char)}
+  .btn-primary:hover{background:var(--gold-lt);transform:translateY(-2px);box-shadow:0 14px 30px rgba(198,162,76,.32)}
+  .btn-outline{background:transparent;border:1px solid rgba(28,28,34,.22);color:var(--ink)}
+  .btn-outline:hover{border-color:var(--ink);transform:translateY(-2px)}
+
+  .route-svg{position:absolute;right:-30px;top:0;height:100%;width:44%;z-index:1;pointer-events:none}
+  @media(max-width:940px){.route-svg{display:none}}
+  .rp{fill:none;stroke-width:2;stroke-linecap:round}
+  .draw{stroke-dasharray:1500;stroke-dashoffset:1500;animation:draw 2.8s ease forwards .3s}
+  .draw.d2{animation-delay:.8s}
+  @keyframes draw{to{stroke-dashoffset:0}}
+  .wp{opacity:0;animation:fade .6s ease forwards}
+  @keyframes fade{to{opacity:1}}
+  @media(prefers-reduced-motion:reduce){.draw{animation:none;stroke-dashoffset:0}.wp{animation:none;opacity:1}}
+
+  .stats{display:flex;flex-wrap:wrap;margin-top:64px;border-top:1px solid var(--line)}
+  .stat{padding:30px 44px 0 0;margin-right:44px;position:relative}
+  .stat:not(:last-child)::after{content:"";position:absolute;right:0;top:30px;bottom:0;width:1px;background:var(--line)}
+  .stat .n{font-family:"Archivo";font-weight:800;font-size:2.3rem;line-height:1;color:var(--gold-dk)}
+  .stat .l{font-family:"Space Mono";font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-soft);margin-top:10px}
+  @media(max-width:620px){.stat{padding-right:26px;margin-right:26px}.stat .n{font-size:1.8rem}}
+
+  /* ============ SERVICES ============ */
+  .services{padding:104px 0}
+  .services .head{max-width:60ch;margin-bottom:60px}
+  .services h2{font-size:clamp(2rem,4.2vw,3.2rem);font-weight:800;margin-top:20px;letter-spacing:-.03em}
+  .services .sub{color:var(--ink-soft);margin-top:20px;font-size:1.1rem;max-width:56ch}
+  .tracks{display:grid;grid-template-columns:1fr 1fr;border:1px solid var(--line);border-radius:var(--r);overflow:hidden;background:var(--white)}
+  @media(max-width:820px){.tracks{grid-template-columns:1fr}}
+  .track{position:relative;padding:44px 40px 40px;transition:background .25s}
+  .track:first-child{border-right:1px solid var(--line)}
+  @media(max-width:820px){.track:first-child{border-right:0;border-bottom:1px solid var(--line)}}
+  .track:hover{background:#FEFDFA}
+  .track::before{content:"";position:absolute;left:0;top:0;height:3px;width:0;background:var(--gold);transition:width .4s ease}
+  .track:hover::before{width:100%}
+  .track .num{font-family:"Space Mono";font-size:12px;letter-spacing:.16em;color:var(--ink-soft)}
+  .track .cat{display:inline-flex;align-items:center;gap:11px;font-family:"Archivo";font-weight:700;font-size:.82rem;letter-spacing:.14em;text-transform:uppercase;margin-top:20px;color:var(--gold-dk)}
+  .track .cat .bar{width:30px;height:3px;border-radius:2px;background:var(--gold)}
+  .track h3{font-size:1.7rem;font-weight:800;margin:16px 0 12px;letter-spacing:-.02em}
+  .track p{color:var(--ink-soft);font-size:1.02rem;margin:0 0 26px}
+  .track ul{list-style:none;padding:0;margin:0 0 30px;display:grid;gap:13px}
+  .track li{display:flex;gap:14px;align-items:baseline;font-size:1rem}
+  .track li::before{content:"";width:14px;height:2px;flex:none;background:var(--gold);transform:translateY(-4px)}
+  .track .more{display:inline-flex;align-items:center;gap:9px;text-decoration:none;font-weight:600;font-size:15px;color:var(--gold-dk)}
+  .track .more svg{transition:transform .2s}.track .more:hover svg{transform:translateX(4px)}
+
+  /* ============ PROCESS (dark band) ============ */
+  .process{background:var(--char);color:#fff;padding:104px 0}
+  .process h2{font-size:clamp(2rem,4.2vw,3.2rem);font-weight:800;margin-top:20px;max-width:16ch;letter-spacing:-.03em}
+  .process .sub{color:#C6C2B6;margin:20px 0 66px;max-width:52ch}
+  .steps{display:grid;grid-template-columns:repeat(4,1fr)}
+  @media(max-width:820px){.steps{grid-template-columns:1fr}}
+  .step{padding:34px 30px 34px 0;border-top:2px solid var(--gold);position:relative}
+  .step+.step{padding-left:30px;border-left:1px solid var(--line-dk)}
+  @media(max-width:820px){.step{border-left:0;padding-left:0}.step+.step{padding-left:0}}
+  .step .n{font-family:"Archivo";font-weight:800;font-size:3.2rem;line-height:.9;color:var(--gold);letter-spacing:-.04em}
+  .step h3{font-size:1.22rem;font-weight:700;margin:20px 0 9px}
+  .step p{color:#A79E8C;font-size:.97rem;margin:0}
+
+  /* ============ COVERAGE ============ */
+  .coverage{padding:104px 0}
+  .coverage .grid2{display:grid;grid-template-columns:1.05fr 1fr;gap:64px;align-items:center}
+  @media(max-width:880px){.coverage .grid2{grid-template-columns:1fr;gap:48px}}
+  .coverage h2{font-size:clamp(2rem,4.2vw,3.2rem);font-weight:800;margin-top:20px;letter-spacing:-.03em}
+  .coverage p{color:var(--ink-soft);margin:20px 0 0;max-width:46ch;font-size:1.06rem}
+  .cov-stats{display:grid;grid-template-columns:1fr 1fr;gap:1px;margin-top:42px;background:var(--line);border:1px solid var(--line);border-radius:var(--r);overflow:hidden}
+  .cov-card{background:var(--white);padding:26px 24px}
+  .cov-card .n{font-family:"Archivo";font-weight:800;font-size:2.1rem;color:var(--gold-dk)}
+  .cov-card .l{font-family:"Space Mono";font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-soft);margin-top:8px}
+  .cov-map{position:relative;aspect-ratio:1/1;background:var(--char);border-radius:var(--r);overflow:hidden}
+  .cov-map .g{position:absolute;inset:0;opacity:.5;background-image:linear-gradient(var(--line-dk) 1px,transparent 1px),linear-gradient(90deg,var(--line-dk) 1px,transparent 1px);background-size:40px 40px}
+
+  /* ============ QUOTE ============ */
+  .quote{background:var(--paper-2);padding:100px 0}
+  .quote .wrap{max-width:900px;text-align:center}
+  .quote blockquote{font-family:"Archivo";font-weight:700;font-size:clamp(1.6rem,3.6vw,2.6rem);line-height:1.18;letter-spacing:-.025em;margin:28px auto 0;max-width:22ch}
+  .quote blockquote em{font-style:normal;color:var(--gold-dk)}
+  .quote .who{margin-top:30px;font-family:"Space Mono";font-size:12.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-soft)}
+
+  /* ============ CONTACT (dark band) ============ */
+  .contact{background:var(--char);color:#fff;padding:104px 0}
+  .contact .grid2{display:grid;grid-template-columns:.9fr 1.1fr;gap:60px}
+  @media(max-width:840px){.contact .grid2{grid-template-columns:1fr;gap:44px}}
+  .contact h2{font-size:clamp(2rem,4.2vw,3.2rem);font-weight:800;margin-top:20px;max-width:13ch;letter-spacing:-.03em}
+  .contact .sub{color:#C6C2B6;margin-top:20px;max-width:40ch}
+  .contact .lines{margin-top:36px;display:grid;gap:16px}
+  .contact .lines a{display:flex;gap:13px;align-items:center;text-decoration:none;color:#D8D3C7;font-weight:500;transition:color .2s}
+  .contact .lines a:hover{color:#fff}
+  .contact .lines .bar{width:14px;height:2px;flex:none;background:var(--gold)}
+  form{background:var(--white);border-radius:var(--r);padding:34px;color:var(--ink)}
+  .intent{display:flex;gap:10px;margin-bottom:24px}
+  .intent label{flex:1;cursor:pointer}
+  .intent input{position:absolute;opacity:0;pointer-events:none}
+  .intent span{display:block;text-align:center;padding:14px;border:1.5px solid var(--line);border-radius:var(--r);font-weight:600;font-size:14.5px;transition:.2s}
+  .intent input:checked+span{background:var(--gold);border-color:var(--gold);color:var(--char)}
+  .field{margin-bottom:16px}
+  .field label{display:block;font-family:"Space Mono";font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-soft);margin-bottom:8px}
+  .field input,.field textarea{width:100%;padding:13px 15px;border:1.5px solid var(--line);border-radius:var(--r);font-family:inherit;font-size:15px;background:var(--ivory);transition:border .2s}
+  .field input:focus,.field textarea:focus{outline:none;border-color:var(--gold)}
+  .field textarea{resize:vertical;min-height:96px}
+  form .btn{width:100%;justify-content:center;background:var(--char);color:#fff;margin-top:6px}
+  form .btn:hover{background:#000;transform:translateY(-2px)}
+  .form-note{font-size:12.5px;color:var(--ink-soft);text-align:center;margin-top:14px}
+
+  /* ============ FOOTER ============ */
+  footer{background:var(--char-2);color:#C6C2B6;padding:72px 0 40px}
+  .foot-top{display:flex;justify-content:space-between;flex-wrap:wrap;gap:44px;padding-bottom:46px;border-bottom:1px solid var(--line-dk)}
+  .foot-brand{max-width:32ch}
+  .foot-brand .brand{margin-bottom:16px;color:#fff}
+  .foot-brand p{font-size:14.5px;color:#95907F}
+  .foot-cols{display:flex;gap:66px;flex-wrap:wrap}
+  .foot-cols h4{font-family:"Space Mono";font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:#7C7768;margin:0 0 16px;font-weight:400}
+  .foot-cols a{display:block;color:#C6C2B6;text-decoration:none;font-size:14.5px;margin-bottom:11px;transition:color .2s}
+  .foot-cols a:hover{color:var(--gold-lt)}
+  .foot-bot{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-top:34px;font-size:12.5px;color:#7C7768;font-family:"Space Mono";letter-spacing:.06em}
+
+  .reveal{opacity:0;transform:translateY(24px);transition:opacity .7s ease,transform .7s ease}
+  .reveal.in{opacity:1;transform:none}
+  @media(prefers-reduced-motion:reduce){.reveal{opacity:1;transform:none;transition:none}}
+  :focus-visible{outline:3px solid var(--gold);outline-offset:3px;border-radius:3px}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<header class="nav">
+  <div class="wrap">
+    <a class="brand" href="#top" aria-label="NextPath home">
+      <svg width="28" height="28" viewBox="0 0 28 28" aria-hidden="true">
+        <path d="M5 8 H23" stroke="#C6A24C" stroke-width="2.6" stroke-linecap="round"/>
+        <path d="M5 20 H23" stroke="#C6A24C" stroke-width="2.6" stroke-linecap="round" opacity="0.55"/>
+        <path d="M14 8 V20" stroke="#C6A24C" stroke-width="2.6"/>
+        <rect x="10.5" y="10.5" width="7" height="7" fill="#FCFBF8" stroke="#96741F" stroke-width="2.2"/>
+      </svg>
+      NextPath
+    </a>
+    <nav class="nav-links" id="navlinks">
+      <a href="#services">Services</a>
+      <a href="#process">How it works</a>
+      <a href="#coverage">Network</a>
+      <a href="#contact" class="nav-cta">Get in touch</a>
+    </nav>
+    <button class="menu-btn" id="menuBtn" aria-label="Toggle menu" aria-expanded="false">
+      <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="4" y1="7" x2="20" y2="7"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="17" x2="20" y2="17"/></svg>
+    </button>
+  </div>
+</header>
+
+<!-- HERO -->
+<section class="hero" id="top">
+  <div class="hero-grid" aria-hidden="true"></div>
+  <svg class="route-svg" viewBox="0 0 420 640" aria-hidden="true" preserveAspectRatio="xMidYMid meet">
+    <path class="rp draw" d="M44 40 L44 190 Q44 232 86 232 L300 232 Q342 232 342 274 L342 580" stroke="#C6A24C"/>
+    <path class="rp draw d2" d="M128 40 L128 330 Q128 372 170 372 L300 372 Q342 372 342 414" stroke="#C6A24C" opacity="0.5"/>
+    <rect class="wp" style="animation-delay:2s" x="333" y="363" width="18" height="18" fill="#FCFBF8" stroke="#96741F" stroke-width="3"/>
+    <rect class="wp" style="animation-delay:2.4s" x="38" y="34" width="12" height="12" fill="#C6A24C"/>
+    <rect class="wp" style="animation-delay:2.4s" x="122" y="34" width="12" height="12" fill="#C6A24C" opacity="0.5"/>
+    <rect class="wp" style="animation-delay:2.7s" x="336" y="574" width="12" height="12" fill="#C6A24C"/>
+    <rect class="wp" style="animation-delay:2.7s" x="336" y="408" width="12" height="12" fill="#C6A24C" opacity="0.5"/>
+  </svg>
+  <div class="wrap">
+    <span class="eyebrow">Recruitment &amp; Logistics</span>
+    <h1>The people you <em>hire</em>. The goods you <em>move</em>. One partner.</h1>
+    <p class="lead">NextPath runs a recruitment desk and a logistics operation under one roof — so the team that staffs your floor is the same team that books your freight. One point of contact, one standard of accountability.</p>
+    <div class="hero-cta">
+      <a href="#contact" class="btn btn-primary">Start a conversation
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+      </a>
+      <a href="#services" class="btn btn-outline">Explore services</a>
+    </div>
+    <div class="stats">
+      <div class="stat"><div class="n">12+</div><div class="l">Years in operation</div></div>
+      <div class="stat"><div class="n">3,400</div><div class="l">Placements made</div></div>
+      <div class="stat"><div class="n">98%</div><div class="l">On-time delivery</div></div>
+      <div class="stat"><div class="n">24/7</div><div class="l">Dispatch desk</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- SERVICES -->
+<section class="services" id="services">
+  <div class="wrap">
+    <div class="head reveal">
+      <span class="eyebrow">What we do</span>
+      <h2>Two disciplines, held to one standard.</h2>
+      <p class="sub">Most businesses run a staffing agency and a freight broker who never speak. NextPath is both — when a site needs operators and a delivery run in the same week, it's the same team answering.</p>
+    </div>
+    <div class="tracks">
+      <article class="track reveal" id="recruitment">
+        <span class="num">01 / TALENT</span>
+        <span class="cat"><span class="bar"></span>Recruitment</span>
+        <h3>We place people who show up ready.</h3>
+        <p>From a single specialist hire to a full shift roster staffed by Monday — sourced, vetted, and compliant before day one.</p>
+        <ul>
+          <li>Permanent &amp; executive search</li>
+          <li>Temporary, contract &amp; shift staffing</li>
+          <li>Driver, warehouse &amp; industrial roles</li>
+          <li>Office, finance &amp; healthcare desks</li>
+          <li>Background checks &amp; compliance handled</li>
+        </ul>
+        <a class="more" href="#contact">Brief us on a role
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+        </a>
+      </article>
+      <article class="track reveal" id="logistics">
+        <span class="num">02 / FREIGHT</span>
+        <span class="cat"><span class="bar"></span>Logistics</span>
+        <h3>We plan the route and prove the delivery.</h3>
+        <p>Road freight, warehousing, and last-mile — coordinated from one dispatch desk, with live tracking from pickup to signature.</p>
+        <ul>
+          <li>Full &amp; part-load road freight</li>
+          <li>Warehousing &amp; fulfilment</li>
+          <li>Last-mile &amp; scheduled delivery runs</li>
+          <li>Supply-chain planning &amp; brokerage</li>
+          <li>Live tracking &amp; proof of delivery</li>
+        </ul>
+        <a class="more" href="#contact">Request a quote
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+        </a>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- PROCESS -->
+<section class="process" id="process">
+  <div class="wrap">
+    <div class="reveal">
+      <span class="eyebrow on-dark">The engagement</span>
+      <h2>From brief to done, in four steps.</h2>
+      <p class="sub">Whether it's a person or a pallet, the path is the same — and one contact owns every stage.</p>
+    </div>
+    <div class="steps">
+      <div class="step reveal"><div class="n">01</div><h3>Brief</h3><p>Tell us the role or the load. We define exactly what "done" looks like before anything moves.</p></div>
+      <div class="step reveal"><div class="n">02</div><h3>Match</h3><p>We line up vetted candidates or the right carrier and route from our own network.</p></div>
+      <div class="step reveal"><div class="n">03</div><h3>Deliver</h3><p>People start or freight ships — checks, paperwork, and compliance already handled.</p></div>
+      <div class="step reveal"><div class="n">04</div><h3>Confirm</h3><p>Placement settled or delivery proven. One report, one invoice, one accountable team.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- COVERAGE -->
+<section class="coverage" id="coverage">
+  <div class="wrap">
+    <div class="grid2">
+      <div class="reveal">
+        <span class="eyebrow">The network</span>
+        <h2>Wide enough to cover you. Close enough to answer.</h2>
+        <p>A regional footprint with national reach. The same coordinators handle your hiring and your hauling, so nothing falls between two suppliers.</p>
+        <div class="cov-stats">
+          <div class="cov-card"><div class="n">160+</div><div class="l">Client businesses</div></div>
+          <div class="cov-card"><div class="n">40</div><div class="l">Carrier partners</div></div>
+          <div class="cov-card"><div class="n">6</div><div class="l">Regional hubs</div></div>
+          <div class="cov-card"><div class="n">1</div><div class="l">Point of contact</div></div>
+        </div>
+      </div>
+      <div class="cov-map reveal" aria-hidden="true">
+        <div class="g"></div>
+        <svg viewBox="0 0 400 400" width="100%" height="100%" style="position:relative">
+          <path d="M56 300 Q120 130 200 200 T344 96" fill="none" stroke="#C6A24C" stroke-width="2.4" stroke-linecap="round" stroke-dasharray="1 13"/>
+          <path d="M48 120 Q160 260 250 178 T356 320" fill="none" stroke="#C6A24C" stroke-width="2.4" stroke-linecap="round" stroke-dasharray="1 13" opacity="0.5"/>
+          <g fill="#C6A24C"><rect x="52" y="296" width="9" height="9"/><rect x="340" y="92" width="9" height="9"/></g>
+          <g fill="#C6A24C" opacity="0.6"><rect x="246" y="174" width="9" height="9"/><rect x="352" y="316" width="9" height="9"/></g>
+          <rect x="192" y="192" width="16" height="16" fill="#16161B" stroke="#C6A24C" stroke-width="2.4"/>
+        </svg>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- QUOTE -->
+<section class="quote">
+  <div class="wrap reveal">
+    <span class="eyebrow" style="justify-content:center">Why clients stay</span>
+    <blockquote>"One call now <em>staffs the floor</em> and books the truck. We stopped chasing two suppliers."</blockquote>
+    <div class="who">Operations Lead — Regional Distributor</div>
+  </div>
+</section>
+
+<!-- CONTACT -->
+<section class="contact" id="contact">
+  <div class="wrap">
+    <div class="grid2">
+      <div class="reveal">
+        <span class="eyebrow on-dark">Get in touch</span>
+        <h2>Tell us what you need moved.</h2>
+        <p class="sub">One form, either service. A coordinator replies the same working day — no obligation.</p>
+        <div class="lines">
+          <a href="mailto:hello@nextpath.co"><span class="bar"></span>hello@nextpath.co</a>
+          <a href="tel:+10000000000"><span class="bar"></span>+1 (000) 000-0000 · Recruitment</a>
+          <a href="tel:+10000000001"><span class="bar"></span>+1 (000) 000-0001 · Dispatch</a>
+        </div>
+      </div>
+      <form class="reveal" id="contactForm" novalidate>
+        <div class="intent" role="radiogroup" aria-label="What do you need?">
+          <label><input type="radio" name="intent" value="talent" checked><span>I need people</span></label>
+          <label><input type="radio" name="intent" value="freight"><span>I need freight moved</span></label>
+        </div>
+        <div class="field"><label for="name">Name</label><input id="name" name="name" type="text" required></div>
+        <div class="field"><label for="company">Company</label><input id="company" name="company" type="text"></div>
+        <div class="field"><label for="email">Email</label><input id="email" name="email" type="email" required></div>
+        <div class="field"><label for="msg">Details</label><textarea id="msg" name="msg" placeholder="e.g. 4 forklift operators for a 3-week peak, or a weekly pallet run between two sites."></textarea></div>
+        <button type="submit" class="btn">Send enquiry
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+        </button>
+        <p class="form-note" id="formNote">We reply the same working day.</p>
+      </form>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="wrap">
+    <div class="foot-top">
+      <div class="foot-brand">
+        <a class="brand" href="#top">
+          <svg width="28" height="28" viewBox="0 0 28 28" aria-hidden="true">
+            <path d="M5 8 H23" stroke="#C6A24C" stroke-width="2.6" stroke-linecap="round"/>
+            <path d="M5 20 H23" stroke="#C6A24C" stroke-width="2.6" stroke-linecap="round" opacity="0.55"/>
+            <path d="M14 8 V20" stroke="#C6A24C" stroke-width="2.6"/>
+            <rect x="10.5" y="10.5" width="7" height="7" fill="#1E1E25" stroke="#C6A24C" stroke-width="2.2"/>
+          </svg>
+          NextPath
+        </a>
+        <p>Recruitment and logistics from one accountable team — the people you hire and the goods you move.</p>
+      </div>
+      <div class="foot-cols">
+        <div>
+          <h4>Recruitment</h4>
+          <a href="#recruitment">Permanent search</a>
+          <a href="#recruitment">Temp &amp; shift staffing</a>
+          <a href="#recruitment">Driver &amp; warehouse</a>
+          <a href="#recruitment">Office &amp; healthcare</a>
+        </div>
+        <div>
+          <h4>Logistics</h4>
+          <a href="#logistics">Road freight</a>
+          <a href="#logistics">Warehousing</a>
+          <a href="#logistics">Last-mile delivery</a>
+          <a href="#logistics">Supply-chain planning</a>
+        </div>
+        <div>
+          <h4>Company</h4>
+          <a href="#process">How it works</a>
+          <a href="#coverage">Network</a>
+          <a href="#contact">Contact</a>
+          <a href="#contact">Request a quote</a>
+        </div>
+      </div>
+    </div>
+    <div class="foot-bot">
+      <span>© 2026 NextPath. All rights reserved.</span>
+      <span>RECRUITMENT &amp; LOGISTICS · EST. 2014</span>
+    </div>
+  </div>
+</footer>
+
+<script>
+  const menuBtn=document.getElementById('menuBtn'),navlinks=document.getElementById('navlinks');
+  menuBtn.addEventListener('click',()=>{const o=navlinks.classList.toggle('open');menuBtn.setAttribute('aria-expanded',o)});
+  navlinks.querySelectorAll('a').forEach(a=>a.addEventListener('click',()=>{navlinks.classList.remove('open');menuBtn.setAttribute('aria-expanded',false)}));
+
+  const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target)}}),{threshold:.14});
+  document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
+
+  const form=document.getElementById('contactForm'),note=document.getElementById('formNote');
+  form.addEventListener('submit',e=>{
+    e.preventDefault();
+    const name=form.name.value.trim(),email=form.email.value.trim();
+    if(!name||!email){note.textContent='Please add your name and email so we can reply.';note.style.color='#96741F';return;}
+    const intent=form.intent.value==='talent'?'recruitment':'freight';
+    note.textContent='Thanks '+name+' — your '+intent+' enquiry is queued. We reply the same working day.';
+    note.style.color='#96741F';
+    form.reset();
+  });
+</script>
+</body>
+</html>
