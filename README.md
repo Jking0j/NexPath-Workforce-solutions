@@ -85,10 +85,13 @@ Open `index.html` and update:
 
 - **Phone numbers** — search for `+1 (000) 000-0000` and `+1 (000) 000-0001`
 - **Email** — search for `hello@nextpath.co`
-- **Stats** — the hero numbers (`12+`, `3,400`, `98%`, `24/7`) and the network
-  numbers (`160+`, `40`, `6`, `1`)
-- **Testimonial** — the quote and the "Operations Lead — Regional Distributor" line
-- **Founded year** — search for `EST. 2014` and the `© 2026` in the footer
+- **Copyright year** — the `© 2026` in the footer, if needed
+
+The site intentionally contains **no invented statistics or testimonials** — it
+describes the services offered rather than making unverifiable claims. If you
+later have real figures (e.g. years in operation, placements, on-time rate) or a
+genuine client quote, they'd fit naturally in the hero strip or the "Our promise"
+section.
 
 ## Make the contact form actually send
 
