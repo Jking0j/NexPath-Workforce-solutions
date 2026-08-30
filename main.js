@@ -34,7 +34,7 @@ if (navEl) {
   }, { passive: true });
 }
 
-// Contact form -> Web3Forms (only runs on the contact page)
+// Contact form -> ClickUp (via /api/contact serverless function; only runs on the contact page)
 const form = document.getElementById('contactForm');
 if (form) {
   const note = document.getElementById('formNote');
@@ -43,25 +43,31 @@ if (form) {
     e.preventDefault();
     const name = form.name.value.trim(), email = form.email.value.trim();
     if (!name || !email) { note.textContent = 'Please add your name and email so we can reply.'; note.style.color = '#96741F'; return; }
-    const intent = form.intent.value === 'talent' ? 'recruitment' : 'freight';
+    const intent = form.intent.value; // 'talent' or 'freight'
+    const intentLabel = intent === 'talent' ? 'recruitment' : 'freight';
 
-    const data = new FormData(form);
-    data.set('intent', intent);
-    data.set('subject', 'New ' + intent + ' enquiry from ' + name);
+    const payload = {
+      name,
+      email,
+      company: form.company.value.trim(),
+      msg: form.msg.value.trim(),
+      intent,
+      botcheck: form.botcheck.checked
+    };
 
     submitBtn.disabled = true;
     note.style.color = '#96741F';
-    note.textContent = 'Sending your enquiry…';
+    note.textContent = 'Sending your enquiry\u2026';
 
     try {
-      const res = await fetch('https://api.web3forms.com/submit', {
+      const res = await fetch('/api/contact', {
         method: 'POST',
-        headers: { 'Accept': 'application/json' },
-        body: data
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
       });
       const out = await res.json();
       if (out.success) {
-        note.textContent = 'Thanks ' + name + ', your ' + intent + ' enquiry is on its way. We reply the same working day.';
+        note.textContent = 'Thanks ' + name + ', your ' + intentLabel + ' enquiry is on its way. We reply the same working day.';
         form.reset();
       } else {
         note.textContent = 'Something went wrong. Please email contact@nexpathsolution.com directly.';
