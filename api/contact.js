@@ -40,6 +40,9 @@ module.exports = async (req, res) => {
   const msg = String(body.msg || '').trim();
   const intent = body.intent === 'freight' ? 'freight' : 'talent';
   const intentLabel = intent === 'freight' ? 'freight' : 'recruitment';
+  const freightType = String(body.freightType || '').trim();
+  const origin = String(body.origin || '').trim();
+  const destination = String(body.destination || '').trim();
 
   if (!name || !email) {
     return res.status(400).json({ success: false, error: 'Name and email are required.' });
@@ -48,13 +51,22 @@ module.exports = async (req, res) => {
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
     return res.status(400).json({ success: false, error: 'That email address doesn\'t look right.' });
   }
+  if (intent === 'freight' && (!freightType || !origin || !destination)) {
+    return res.status(400).json({ success: false, error: 'Freight type, origin and destination are required.' });
+  }
 
-  const taskName = `New ${intentLabel} enquiry — ${name}`;
+  const taskName = intent === 'freight'
+    ? `New freight quote request — ${name} (${origin} → ${destination})`
+    : `New recruitment enquiry — ${name}`;
+
   const description = [
     `**Type:** ${intentLabel}`,
     `**Name:** ${name}`,
     `**Email:** ${email}`,
     company ? `**Company:** ${company}` : null,
+    intent === 'freight' ? `**Freight type:** ${freightType}` : null,
+    intent === 'freight' ? `**Origin:** ${origin}` : null,
+    intent === 'freight' ? `**Destination:** ${destination}` : null,
     '',
     '**Details:**',
     msg || '(none provided)',
