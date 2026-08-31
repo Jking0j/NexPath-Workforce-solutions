@@ -73,13 +73,12 @@
         <div class="field"><label for="email">Email</label><input id="email" name="email" type="email" required></div>
         <div id="freightFields" hidden>
           <div class="field"><label for="freightType">Freight type</label>
-            <select id="freightType" name="freightType">
+            <select id="freightType" name="freightType" required>
               <option value="">Select one</option>
-              <option value="Road freight">Road freight</option>
-              <option value="Warehousing">Warehousing</option>
-              <option value="Last-mile delivery">Last-mile delivery</option>
-              <option value="Supply-chain planning">Supply-chain planning</option>
-              <option value="Other">Other</option>
+              <option value="Air">Air</option>
+              <option value="LCL">LCL (Less than Container Load)</option>
+              <option value="FCL">FCL (Full Container Load)</option>
+              <option value="Special">Special</option>
             </select>
           </div>
           <div class="field"><label for="origin">Origin</label><input id="origin" name="origin" type="text" placeholder="e.g. Perth, WA"></div>
