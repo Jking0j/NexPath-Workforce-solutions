@@ -71,8 +71,21 @@
         <div class="field"><label for="name">Name</label><input id="name" name="name" type="text" required></div>
         <div class="field"><label for="company">Company</label><input id="company" name="company" type="text"></div>
         <div class="field"><label for="email">Email</label><input id="email" name="email" type="email" required></div>
+        <div id="freightFields" hidden>
+          <div class="field"><label for="freightType">Freight type</label>
+            <select id="freightType" name="freightType" required>
+              <option value="">Select one</option>
+              <option value="Air">Air</option>
+              <option value="LCL">LCL (Less than Container Load)</option>
+              <option value="FCL">FCL (Full Container Load)</option>
+              <option value="Special">Special</option>
+            </select>
+          </div>
+          <div class="field"><label for="origin">Origin</label><input id="origin" name="origin" type="text" placeholder="e.g. Perth, WA"></div>
+          <div class="field"><label for="destination">Destination</label><input id="destination" name="destination" type="text" placeholder="e.g. Sydney, NSW"></div>
+        </div>
         <div class="field"><label for="msg">Details</label><textarea id="msg" name="msg" placeholder="e.g. 4 forklift operators for a 3-week peak, or a weekly pallet run between two sites."></textarea></div>
-        <button type="submit" class="btn">Send enquiry
+        <button type="submit" class="btn"><span id="submitLabel">Send enquiry</span>
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
         </button>
         <p class="form-note" id="formNote">We reply the same working day.</p>

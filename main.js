@@ -39,12 +39,34 @@ const form = document.getElementById('contactForm');
 if (form) {
   const note = document.getElementById('formNote');
   const submitBtn = form.querySelector('button[type="submit"]');
+  const submitLabel = document.getElementById('submitLabel');
+  const freightFields = document.getElementById('freightFields');
+  const intentRadios = form.querySelectorAll('input[name="intent"]');
+
+  // Show the freight-specific fields, and relabel the button, based on the selected intent
+  function syncIntent() {
+    const isFreight = form.intent.value === 'freight';
+    freightFields.hidden = !isFreight;
+    submitLabel.textContent = isFreight ? 'Get quote' : 'Send enquiry';
+  }
+  intentRadios.forEach(r => r.addEventListener('change', syncIntent));
+  syncIntent();
+
   form.addEventListener('submit', async e => {
     e.preventDefault();
     const name = form.name.value.trim(), email = form.email.value.trim();
     if (!name || !email) { note.textContent = 'Please add your name and email so we can reply.'; note.style.color = '#96741F'; return; }
+
     const intent = form.intent.value; // 'talent' or 'freight'
-    const intentLabel = intent === 'talent' ? 'recruitment' : 'freight';
+    const freightType = form.freightType.value.trim();
+    const origin = form.origin.value.trim();
+    const destination = form.destination.value.trim();
+
+    if (intent === 'freight' && (!freightType || !origin || !destination)) {
+      note.textContent = 'Please add the freight type, origin and destination so we can quote accurately.';
+      note.style.color = '#96741F';
+      return;
+    }
 
     const payload = {
       name,
@@ -52,12 +74,15 @@ if (form) {
       company: form.company.value.trim(),
       msg: form.msg.value.trim(),
       intent,
+      freightType,
+      origin,
+      destination,
       botcheck: form.botcheck.checked
     };
 
     submitBtn.disabled = true;
     note.style.color = '#96741F';
-    note.textContent = 'Sending your enquiry\u2026';
+    note.textContent = intent === 'freight' ? 'Getting your quote request through\u2026' : 'Sending your enquiry\u2026';
 
     try {
       const res = await fetch('/api/contact', {
@@ -67,8 +92,9 @@ if (form) {
       });
       const out = await res.json();
       if (out.success) {
-        note.textContent = 'Thanks ' + name + ', your ' + intentLabel + ' enquiry is on its way. We reply the same working day.';
+        note.textContent = 'Submitted successfully! A team member will contact you shortly.';
         form.reset();
+        syncIntent();
       } else {
         note.textContent = 'Something went wrong. Please email contact@nexpathsolution.com directly.';
       }
