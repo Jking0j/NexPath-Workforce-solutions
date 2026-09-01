@@ -165,9 +165,37 @@
           <li><span class="bar"></span>Stay in the pool as long as you like, opt out any time</li>
         </ul>
       </div>
-      <div class="embed-card reveal">
-        <iframe src="https://forms.clickup.com/90161762244/f/2kz0yky4-6216/F4786F91VWEWC6HIWA" loading="lazy" title="NextPath Candidate Application Form"></iframe>
-      </div>
+      <form class="reveal" id="careersForm" novalidate>
+        <!-- honeypot: hidden from people, catches bots -->
+        <input type="checkbox" name="botcheck" tabindex="-1" aria-hidden="true" style="display:none">
+        <div class="field"><label for="cName">Full name</label><input id="cName" name="name" type="text" required></div>
+        <div class="field"><label for="cEmail">Email</label><input id="cEmail" name="email" type="email" required></div>
+        <div class="field"><label for="cPhone">Phone</label><input id="cPhone" name="phone" type="tel" placeholder="e.g. 04XX XXX XXX"></div>
+        <div class="field"><label for="cNiche">Niche</label>
+          <select id="cNiche" name="niche" required>
+            <option value="">Select one</option>
+            <option value="IT">IT</option>
+            <option value="Logistics">Logistics</option>
+            <option value="Both">Both</option>
+          </select>
+        </div>
+        <div class="field"><label for="cSpecialisation">Specialisation</label><input id="cSpecialisation" name="specialisation" type="text" placeholder="e.g. Backend Developer, Forklift Operator"></div>
+        <div class="field"><label for="cExperience">Experience level</label>
+          <select id="cExperience" name="experience">
+            <option value="">Select one</option>
+            <option value="Entry-level">Entry-level</option>
+            <option value="1-3 years">1-3 years</option>
+            <option value="3-5 years">3-5 years</option>
+            <option value="5+ years">5+ years</option>
+          </select>
+        </div>
+        <div class="field"><label for="cSkills">Key skills</label><textarea id="cSkills" name="skills" placeholder="e.g. React, warehouse management systems, forklift licence"></textarea></div>
+        <div class="field"><label for="cResume">Resume (optional, PDF or Word, under 3MB)</label><input id="cResume" name="resume" type="file" accept=".pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"></div>
+        <button type="submit" class="btn"><span id="careersSubmitLabel">Submit application</span>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+        </button>
+        <p class="form-note" id="careersFormNote">We reply the same working day.</p>
+      </form>
     </div>
   </div>
 </section>
