@@ -279,3 +279,12 @@
 .cta-band.light .btn-outline{border-color:rgba(28,28,34,.22);color:var(--ink)}
 .cta-band.light .btn-outline:hover{border-color:var(--ink)}
 @media(max-width:720px){.cta-band .wrap{flex-direction:column;align-items:flex-start}}
+
+/* ============ CAREERS: ROLE TAGS ============ */
+.role-tags{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px}
+.role-tag{font-family:"Space Mono",monospace;font-size:11px;letter-spacing:.05em;text-transform:uppercase;color:var(--gold-dk);background:var(--paper-2);border:1px solid var(--line);border-radius:4px;padding:6px 10px}
+
+/* ============ CAREERS: APPLY CHECKLIST + EMBED ============ */
+.checklist{list-style:none;margin:28px 0 0;padding:0;display:grid;gap:14px}
+.checklist li{display:flex;gap:13px;align-items:flex-start;font-size:.98rem;color:#D8D3C7}
+.checklist .bar{width:14px;height:2px;flex:none;margin-top:11px;background:var(--gold)}

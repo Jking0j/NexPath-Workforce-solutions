@@ -105,3 +105,86 @@ if (form) {
     }
   });
 }
+
+// Careers application -> ClickUp (via /api/careers serverless function; only runs on the careers page)
+const careersForm = document.getElementById('careersForm');
+if (careersForm) {
+  const cNote = document.getElementById('careersFormNote');
+  const cSubmitBtn = careersForm.querySelector('button[type="submit"]');
+  const cResumeInput = document.getElementById('cResume');
+  const MAX_RESUME_BYTES = 3 * 1024 * 1024; // 3MB - keeps the base64 payload safely under Vercel's request limit
+
+  function readFileAsBase64(file) {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(String(reader.result).split(',')[1] || '');
+      reader.onerror = () => reject(new Error('Could not read the file.'));
+      reader.readAsDataURL(file);
+    });
+  }
+
+  careersForm.addEventListener('submit', async e => {
+    e.preventDefault();
+    const name = careersForm.name.value.trim(), email = careersForm.email.value.trim();
+    if (!name || !email) { cNote.textContent = 'Please add your name and email so we can reply.'; cNote.style.color = '#96741F'; return; }
+
+    const niche = careersForm.niche.value;
+    if (!niche) { cNote.textContent = 'Please select a niche.'; cNote.style.color = '#96741F'; return; }
+
+    let resumeName = '', resumeType = '', resumeBase64 = '';
+    const file = cResumeInput.files[0];
+    if (file) {
+      if (file.size > MAX_RESUME_BYTES) {
+        cNote.textContent = 'Your resume is over 3MB — please attach a smaller file.';
+        cNote.style.color = '#96741F';
+        return;
+      }
+      cNote.style.color = '#96741F';
+      cNote.textContent = 'Preparing your application…';
+      try {
+        resumeBase64 = await readFileAsBase64(file);
+        resumeName = file.name;
+        resumeType = file.type || 'application/octet-stream';
+      } catch (err) {
+        cNote.textContent = 'Could not read your resume file. Please try again.';
+        return;
+      }
+    }
+
+    const payload = {
+      name,
+      email,
+      phone: careersForm.phone.value.trim(),
+      niche,
+      specialisation: careersForm.specialisation.value.trim(),
+      experience: careersForm.experience.value,
+      skills: careersForm.skills.value.trim(),
+      resumeName,
+      resumeType,
+      resumeBase64,
+      botcheck: careersForm.botcheck.checked,
+    };
+
+    cSubmitBtn.disabled = true;
+    cNote.style.color = '#96741F';
+    cNote.textContent = 'Submitting your application…';
+    try {
+      const res = await fetch('/api/careers', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      const out = await res.json();
+      if (out.success) {
+        cNote.textContent = "Submitted successfully! A team member will be in touch if there's a match.";
+        careersForm.reset();
+      } else {
+        cNote.textContent = out.error || 'Something went wrong. Please email contact@nexpathsolution.com directly.';
+      }
+    } catch (err) {
+      cNote.textContent = 'Network error. Please email contact@nexpathsolution.com directly.';
+    } finally {
+      cSubmitBtn.disabled = false;
+    }
+  });
+}
