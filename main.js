@@ -1,5 +1,9 @@
 // ===== Shared behaviour for every NextPath page =====
 
+// Footer year — keeps the copyright notice current with no manual edits each January
+const yearEl = document.getElementById('year');
+if (yearEl) yearEl.textContent = new Date().getFullYear();
+
 // Mobile menu toggle
 const menuBtn = document.getElementById('menuBtn');
 const navlinks = document.getElementById('navlinks');
@@ -32,6 +36,44 @@ if (navEl) {
     ticking = true;
     requestAnimationFrame(() => { navEl.classList.toggle('scrolled', window.scrollY > 8); ticking = false; });
   }, { passive: true });
+}
+
+// Back-to-top button
+const toTop = document.getElementById('toTop');
+if (toTop) {
+  let toTopTicking = false;
+  window.addEventListener('scroll', () => {
+    if (toTopTicking) return;
+    toTopTicking = true;
+    requestAnimationFrame(() => { toTop.hidden = window.scrollY < 600; toTopTicking = false; });
+  }, { passive: true });
+  toTop.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
+}
+
+// Count-up animation for numeric stats marked .count, once they scroll into view
+const countEls = document.querySelectorAll('.count');
+if (countEls.length) {
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const animateCount = el => {
+    const match = el.textContent.trim().match(/^(\d+)(.*)$/);
+    if (!match) return;
+    const target = parseInt(match[1], 10);
+    const suffix = match[2];
+    if (reduceMotion) { el.textContent = target + suffix; return; }
+    const duration = 900;
+    const start = performance.now();
+    const step = now => {
+      const progress = Math.min((now - start) / duration, 1);
+      const eased = 1 - Math.pow(1 - progress, 3);
+      el.textContent = Math.round(target * eased) + suffix;
+      if (progress < 1) requestAnimationFrame(step);
+    };
+    requestAnimationFrame(step);
+  };
+  const countIo = new IntersectionObserver(entries => {
+    entries.forEach(entry => { if (entry.isIntersecting) { animateCount(entry.target); countIo.unobserve(entry.target); } });
+  }, { threshold: .5 });
+  countEls.forEach(el => countIo.observe(el));
 }
 
 // Contact form -> ClickUp (via /api/contact serverless function; only runs on the contact page)

@@ -1,8 +1,9 @@
 # NextPath — Recruitment &amp; Logistics
 
-A single-page marketing website for **NextPath**, a company offering both recruitment
-and logistics services. Built as one self-contained `index.html` file — no build step,
-no dependencies, no framework. Just open it or host it.
+A multi-page marketing website for **NextPath**, a company offering both recruitment
+and logistics services across Australia. Plain HTML/CSS/JS, no build step, no
+framework — plus two small Vercel serverless functions that send form submissions
+straight into ClickUp as tasks.
 
 Palette: gold-and-white with charcoal contrast bands. Fonts load from Google Fonts.
 
@@ -12,95 +13,92 @@ Palette: gold-and-white with charcoal contrast bands. Fonts load from Google Fon
 
 | File | What it is |
 |------|------------|
-| `index.html` | The entire website (HTML, CSS, and JS inline) |
-| `README.md` | This file |
-| `.gitignore` | Standard ignores |
+| `index.html` | Home |
+| `services.html` | Services (recruitment + logistics) |
+| `process.html` | How it works |
+| `network.html` | Network / coverage |
+| `careers.html` | Careers — candidate application form |
+| `contact.html` | Contact — enquiry / quote-request form |
+| `styles.css` | Shared stylesheet for every page |
+| `main.js` | Shared behaviour: nav, scroll-reveal, both forms, back-to-top, etc. |
+| `api/contact.js` | Vercel function — contact form → ClickUp task |
+| `api/careers.js` | Vercel function — careers form → ClickUp task (+ resume attachment) |
+| `site.webmanifest` | Web app manifest (uses the existing icon files) |
+| `robots.txt`, `sitemap.xml` | SEO |
+| `vercel.json` | Clean URLs, security headers, static asset caching |
+| `.env.example` | Template for the ClickUp environment variables (see below) |
 | `LICENSE` | MIT license (edit or remove as you like) |
 
 ---
 
+## Deployment: Vercel, not GitHub Pages
+
+This site **requires Vercel** (or an equivalent platform that runs Node serverless
+functions) — not plain GitHub Pages. Two things depend on it:
+
+1. **Clean URLs.** Every page links to `/services`, `/process`, etc. with no
+   `.html` extension. `vercel.json` sets `"cleanUrls": true` to make that resolve.
+   Plain GitHub Pages won't rewrite those and will 404.
+2. **The forms.** Both forms `fetch()` a same-origin `/api/...` endpoint. Those
+   are Vercel Serverless Functions (`api/contact.js`, `api/careers.js`) — GitHub
+   Pages can't run them at all.
+
+To deploy: import the repo at [vercel.com/new](https://vercel.com/new), set the
+three environment variables below under **Project → Settings → Environment
+Variables**, and point your domain at the Vercel project.
+
 ## View it locally
 
-Just double-click `index.html`, or serve it:
-
 ```bash
-# Python 3
-python3 -m http.server 8000
-# then open http://localhost:8000
+npm i -g vercel
+vercel dev
 ```
+
+`vercel dev` serves the static pages **and** runs the `/api` functions locally,
+so the forms work. Copy `.env.example` to `.env.local` first and fill in real
+ClickUp values (see below) — without them the forms will get a 500.
+
+Opening the HTML files directly (or a plain `python -m http.server`) will render
+the pages fine, but the forms will fail since there's no `/api` to call.
 
 ---
 
-## Publish free with GitHub Pages
+## Forms → ClickUp
 
-1. Create a new repository on GitHub (e.g. `nextpath-site`).
-2. Push these files (see commands below).
-3. In the repo, go to **Settings → Pages**.
-4. Under **Build and deployment**, set **Source: Deploy from a branch**,
-   **Branch: `main`**, folder **`/ (root)`**, then **Save**.
-5. Your site goes live at `https://<your-username>.github.io/<repo-name>/`
-   within a minute or two.
+The contact form and the careers application form both post to a serverless
+function, which creates a task in a ClickUp List — no email service involved.
 
-To use a custom domain (e.g. `nextpath.co`), add it under **Settings → Pages →
-Custom domain**, then create a `CNAME` file in the repo containing just your domain.
+1. In ClickUp: **avatar → Settings → Apps** → generate a personal API token
+   (starts with `pk_`).
+2. Create (or pick) a List for enquiries and another for candidate applications.
+   Open each List → **"..." → Copy link** — the number after
+   `app.clickup.com/<team_id>/v/li/` is the List ID.
+3. Set these in Vercel → Project → Settings → Environment Variables:
 
----
+   | Variable | Used by |
+   |---|---|
+   | `CLICKUP_API_TOKEN` | both functions |
+   | `CLICKUP_LIST_ID` | `api/contact.js` — enquiries/quote requests |
+   | `CLICKUP_CAREERS_LIST_ID` | `api/careers.js` — candidate applications |
 
-## Push to GitHub
-
-```bash
-cd nextpath
-git init
-git add .
-git commit -m "Initial commit: NextPath site"
-git branch -M main
-git remote add origin git@github.com:Jking0j/NexPath-Workforce-solutions.git
-git push -u origin main
-```
-
-If SSH isn't set up, use HTTPS instead:
-
-```bash
-git remote add origin https://github.com/Jking0j/NexPath-Workforce-solutions.git
-git push -u origin main
-```
-
-If the push is rejected because the repo already has commits (e.g. you added a
-README on GitHub), sync first:
-
-```bash
-git pull --rebase origin main
-git push -u origin main
-```
-
-Once Pages is enabled (Settings → Pages → Deploy from a branch → `main` / root),
-the site will be live at:
-**https://jking0j.github.io/NexPath-Workforce-solutions/**
+Both functions include a honeypot field, a same-origin check, per-IP rate
+limiting and input length caps — see the comments at the top of each file.
 
 ---
 
 ## Before you go live — replace the placeholders
 
-Open `index.html` and update:
-
-- **Phone numbers** — search for `+1 (000) 000-0000` and `+1 (000) 000-0001`
-- **Email** — search for `hello@nextpath.co`
-- **Copyright year** — the `© 2026` in the footer, if needed
+- **Email** — search for `contact@nexpathsolution.com` if that's not the real inbox.
+- **Copyright year** — handled automatically now (`main.js` fills in `#year`
+  from the visitor's clock), so nothing to edit each January.
+- **Domain** — the canonical/OG URLs are hard-coded to
+  `https://www.nexpathsolution.com/`; update every `<link rel="canonical">`,
+  `og:url`, `sitemap.xml` and `robots.txt` if the domain changes.
 
 The site intentionally contains **no invented statistics or testimonials** — it
 describes the services offered rather than making unverifiable claims. If you
-later have real figures (e.g. years in operation, placements, on-time rate) or a
-genuine client quote, they'd fit naturally in the hero strip or the "Our promise"
-section.
-
-## Make the contact form actually send
-
-The form currently validates and shows a confirmation message but does **not**
-send anywhere. To make it work, connect it to a form backend such as
-[Formspree](https://formspree.io), [Basin](https://usebasin.com), or your own
-endpoint. In short: give the `<form>` an `action` URL and `method="POST"`, then
-remove the `e.preventDefault()` demo handler at the bottom of `index.html`
-(or point the fetch at your endpoint).
+later have real figures or a genuine client quote, they'd fit naturally in the
+hero strip or the "Our promise" section.
 
 ---
 
