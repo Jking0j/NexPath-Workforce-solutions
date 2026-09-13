@@ -157,6 +157,10 @@ module.exports = async (req, res) => {
         name: taskName,
         description,
         tags: ['careers'],
+        // The Free plan caps uses of custom task types. Explicitly create a
+        // standard Task so website applications remain deliverable after the
+        // Candidate task-type allowance has been exhausted.
+        custom_item_id: 0,
       }),
     });
 
