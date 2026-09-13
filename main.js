@@ -87,7 +87,7 @@ if (form) {
 
   // Show the freight-specific fields, and relabel the button, based on the selected intent
   function syncIntent() {
-    const isFreight = form.intent.value === 'freight';
+    const isFreight = form.elements.intent.value === 'freight';
     freightFields.hidden = !isFreight;
     submitLabel.textContent = isFreight ? 'Get quote' : 'Send enquiry';
   }
@@ -96,13 +96,14 @@ if (form) {
 
   form.addEventListener('submit', async e => {
     e.preventDefault();
-    const name = form.name.value.trim(), email = form.email.value.trim();
+    const fields = form.elements;
+    const name = fields.name.value.trim(), email = fields.email.value.trim();
     if (!name || !email) { note.textContent = 'Please add your name and email so we can reply.'; note.style.color = '#96741F'; return; }
 
-    const intent = form.intent.value; // 'talent' or 'freight'
-    const freightType = form.freightType.value.trim();
-    const origin = form.origin.value.trim();
-    const destination = form.destination.value.trim();
+    const intent = fields.intent.value; // 'talent' or 'freight'
+    const freightType = fields.freightType.value.trim();
+    const origin = fields.origin.value.trim();
+    const destination = fields.destination.value.trim();
 
     if (intent === 'freight' && (!freightType || !origin || !destination)) {
       note.textContent = 'Please add the freight type, origin and destination so we can quote accurately.';
@@ -113,13 +114,13 @@ if (form) {
     const payload = {
       name,
       email,
-      company: form.company.value.trim(),
-      msg: form.msg.value.trim(),
+      company: fields.company.value.trim(),
+      msg: fields.msg.value.trim(),
       intent,
       freightType,
       origin,
       destination,
-      botcheck: form.botcheck.checked
+      botcheck: fields.botcheck.checked
     };
 
     submitBtn.disabled = true;
@@ -167,10 +168,11 @@ if (careersForm) {
 
   careersForm.addEventListener('submit', async e => {
     e.preventDefault();
-    const name = careersForm.name.value.trim(), email = careersForm.email.value.trim();
+    const fields = careersForm.elements;
+    const name = fields.name.value.trim(), email = fields.email.value.trim();
     if (!name || !email) { cNote.textContent = 'Please add your name and email so we can reply.'; cNote.style.color = '#96741F'; return; }
 
-    const niche = careersForm.niche.value;
+    const niche = fields.niche.value;
     if (!niche) { cNote.textContent = 'Please select a niche.'; cNote.style.color = '#96741F'; return; }
 
     let resumeName = '', resumeType = '', resumeBase64 = '';
@@ -196,15 +198,15 @@ if (careersForm) {
     const payload = {
       name,
       email,
-      phone: careersForm.phone.value.trim(),
+      phone: fields.phone.value.trim(),
       niche,
-      specialisation: careersForm.specialisation.value.trim(),
-      experience: careersForm.experience.value,
-      skills: careersForm.skills.value.trim(),
+      specialisation: fields.specialisation.value.trim(),
+      experience: fields.experience.value,
+      skills: fields.skills.value.trim(),
       resumeName,
       resumeType,
       resumeBase64,
-      botcheck: careersForm.botcheck.checked,
+      botcheck: fields.botcheck.checked,
     };
 
     cSubmitBtn.disabled = true;
