@@ -35,6 +35,10 @@ function clientIp(req) {
 
 function isRateLimited(ip) {
   const now = Date.now();
+  // Drop expired entries now and then so the map can't grow without bound.
+  if (hits.size > 5000) {
+    for (const [key, entry] of hits) if (now - entry.start > RATE_LIMIT_WINDOW_MS) hits.delete(key);
+  }
   const entry = hits.get(ip);
   if (!entry || now - entry.start > RATE_LIMIT_WINDOW_MS) {
     hits.set(ip, { start: now, count: 1 });
@@ -66,6 +70,26 @@ const ALLOWED_EXPERIENCE = ['', 'Entry-level', '1-3 years', '3-5 years', '5+ yea
 // an oversized payload slipping through (Vercel's hard request-body limit
 // is 4.5MB).
 const MAX_RESUME_BASE64_CHARS = 4_600_000;
+
+// Only PDF and Word files are accepted, checked by extension AND by the
+// file's first bytes, so a renamed executable or HTML file can't be slipped
+// into ClickUp for staff to open.
+const RESUME_TYPES = {
+  pdf:  { mime: 'application/pdf', magic: [0x25, 0x50, 0x44, 0x46] },          // %PDF
+  doc:  { mime: 'application/msword', magic: [0xD0, 0xCF, 0x11, 0xE0] },      // OLE2
+  docx: { mime: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', magic: [0x50, 0x4B, 0x03, 0x04] }, // ZIP
+};
+
+// Returns { name, mime } for a valid resume, or null.
+function checkResume(fileName, buffer) {
+  const ext = (fileName.match(/\.([a-z0-9]+)$/i) || [])[1]?.toLowerCase();
+  const type = RESUME_TYPES[ext];
+  if (!type || buffer.length < type.magic.length) return null;
+  if (!type.magic.every((b, i) => buffer[i] === b)) return null;
+  // Strip path separators and control/odd characters from the filename.
+  const safe = fileName.replace(/[\\/\x00-\x1f<>:"|?*]+/g, '_').slice(-120);
+  return { name: safe, mime: type.mime };
+}
 
 // Adds a comment to the task. Never throws.
 async function commentOnTask(taskId, text) {
@@ -121,7 +145,6 @@ module.exports = async (req, res) => {
   const experience = String(body.experience || '').trim();
   const skills = String(body.skills || '').trim();
   const resumeName = String(body.resumeName || '').trim();
-  const resumeType = String(body.resumeType || '').trim();
   const resumeBase64 = String(body.resumeBase64 || '');
 
   if (!name || !email) {
@@ -148,6 +171,15 @@ module.exports = async (req, res) => {
   if (resumeBase64 && resumeBase64.length > MAX_RESUME_BASE64_CHARS) {
     return res.status(400).json({ success: false, error: 'Resume file is too large.' });
   }
+  let resume = null;
+  if (resumeBase64) {
+    const buffer = Buffer.from(resumeBase64, 'base64');
+    const checked = checkResume(resumeName, buffer);
+    if (!checked) {
+      return res.status(400).json({ success: false, error: 'Resume must be a PDF or Word document (.pdf, .doc, .docx).' });
+    }
+    resume = { ...checked, buffer };
+  }
 
   const taskName = `New candidate application — ${name} (${niche})`;
 
@@ -162,7 +194,7 @@ module.exports = async (req, res) => {
     '**Key skills:**',
     skills || '(none provided)',
     '',
-    resumeName ? `**Resume attached:** ${resumeName}` : '**Resume attached:** (none)',
+    resume ? `**Resume attached:** ${resume.name}` : '**Resume attached:** (none)',
   ].filter(Boolean).join('\n');
 
   let taskId;
@@ -202,14 +234,14 @@ module.exports = async (req, res) => {
   // submission for the candidate. Instead it's retried once, then flagged
   // with a comment on the task so the team knows to ask for the file.
   let resumeAttached = null; // null = no resume sent
-  if (resumeBase64 && resumeName) {
-    const buffer = Buffer.from(resumeBase64, 'base64');
+  if (resume) {
+    const { buffer } = resume;
     let lastError = '';
     resumeAttached = false;
     for (let attempt = 1; attempt <= 2 && !resumeAttached; attempt++) {
       try {
         const form = new FormData();
-        form.append('attachment', new Blob([buffer], { type: resumeType || 'application/octet-stream' }), resumeName);
+        form.append('attachment', new Blob([buffer], { type: resume.mime }), resume.name);
         const attachRes = await fetch(`https://api.clickup.com/api/v2/task/${taskId}/attachment`, {
           method: 'POST',
           headers: { 'Authorization': CLICKUP_API_TOKEN },
@@ -218,7 +250,7 @@ module.exports = async (req, res) => {
         const detail = await attachRes.text();
         if (attachRes.ok) {
           resumeAttached = true;
-          console.log('ClickUp resume attached:', taskId, resumeName, buffer.length, 'bytes');
+          console.log('ClickUp resume attached:', taskId, resume.name, buffer.length, 'bytes');
         } else {
           lastError = `ClickUp returned ${attachRes.status}`;
           console.error('ClickUp attachment upload failed:', attempt, attachRes.status, detail);
@@ -230,7 +262,7 @@ module.exports = async (req, res) => {
     }
     if (!resumeAttached) {
       await commentOnTask(taskId,
-        `Resume "${resumeName}" was submitted but could not be attached (${lastError}). Please ask the candidate to email it to contact@nexpathsolution.com.`);
+        `Resume "${resume.name}" was submitted but could not be attached (${lastError}). Please ask the candidate to email it to contact@nexpathsolution.com.`);
     }
   }
 

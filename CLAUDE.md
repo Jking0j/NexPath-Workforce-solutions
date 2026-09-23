@@ -1,6 +1,7 @@
 # NextPath site — project instructions for Claude Code
 
-This repository is a single static website (`index.html`) deployed via GitHub Pages.
+This repository is a multi-page static website deployed on Vercel, with two serverless
+functions in `api/` that send form submissions to ClickUp (see README.md).
 
 ## Git workflow — do this automatically
 
@@ -17,11 +18,11 @@ case, show me the error instead of retrying blindly. Never force-push.
 
 - Remote: `https://github.com/Jking0j/NexPath-Workforce-solutions.git`
 - Default branch: `main`
-- Live site: `https://jking0j.github.io/NexPath-Workforce-solutions/`
+- Live site: `https://www.nexpathsolution.com/` (Vercel; production builds from `main`)
 
 ## Editing rules
 
-- The whole site is inline in `index.html` (HTML + CSS + JS). No build step, no dependencies.
+- Pages are plain HTML sharing `styles.css` and `main.js`. No build step, no dependencies.
 - Keep the gold-and-white palette and the professional, service-focused tone.
 - **Do not invent** statistics, testimonials, dates, or any facts about the business.
-- The contact form is front-end only until connected to a real form service.
+- Forms post to `api/contact.js` and `api/careers.js` (ClickUp tasks + Resend auto-replies).

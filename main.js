@@ -178,6 +178,11 @@ if (careersForm) {
     let resumeName = '', resumeType = '', resumeBase64 = '';
     const file = cResumeInput.files[0];
     if (file) {
+      if (!/\.(pdf|docx?)$/i.test(file.name)) {
+        cNote.textContent = 'Please attach your resume as a PDF or Word document (.pdf, .doc, .docx).';
+        cNote.style.color = '#96741F';
+        return;
+      }
       if (file.size > MAX_RESUME_BYTES) {
         cNote.textContent = 'Your resume is over 3MB — please attach a smaller file.';
         cNote.style.color = '#96741F';

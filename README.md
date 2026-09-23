@@ -84,6 +84,8 @@ function, which creates a task in a ClickUp List — no email service involved.
 
 Both functions include a honeypot field, a same-origin check, per-IP rate
 limiting and input length caps — see the comments at the top of each file.
+The careers function only accepts PDF and Word resumes, checked by file
+extension and by the file's first bytes, so other file types can't reach ClickUp.
 
 ### No-reply confirmation emails (optional)
 

@@ -26,6 +26,28 @@ const AUTOREPLY_REPLY_TO = process.env.AUTOREPLY_REPLY_TO || 'contact@nexpathsol
 const CONTACT_EMAIL = 'contact@nexpathsolution.com';
 const SEND_TIMEOUT_MS = 5000;
 
+// Someone could submit the form over and over with a stranger's address to
+// flood their inbox. Cap confirmations per recipient (best-effort, per
+// function instance — same caveat as the per-IP limit in each endpoint).
+const RECIPIENT_WINDOW_MS = 60 * 60 * 1000; // 1 hour
+const RECIPIENT_MAX = 2;
+const sentTo = global.__nextpathAutoReplies || (global.__nextpathAutoReplies = new Map());
+
+function recipientLimited(to) {
+  const now = Date.now();
+  const key = to.toLowerCase();
+  if (sentTo.size > 5000) {
+    for (const [k, e] of sentTo) if (now - e.start > RECIPIENT_WINDOW_MS) sentTo.delete(k);
+  }
+  const entry = sentTo.get(key);
+  if (!entry || now - entry.start > RECIPIENT_WINDOW_MS) {
+    sentTo.set(key, { start: now, count: 1 });
+    return false;
+  }
+  entry.count += 1;
+  return entry.count > RECIPIENT_MAX;
+}
+
 function escapeHtml(s) {
   return String(s)
     .replace(/&/g, '&amp;')
@@ -97,9 +119,10 @@ function buildEmail(kind, { name, ...data }) {
 
 // Never throws: a failed confirmation email is logged but must not fail a
 // submission that has already been saved to ClickUp.
-// Resolves to 'sent', 'skipped' (not configured) or 'failed'.
+// Resolves to 'sent', 'skipped' (not configured), 'limited' or 'failed'.
 async function sendAutoReply(kind, to, data) {
   if (!RESEND_API_KEY || !AUTOREPLY_FROM) return 'skipped';
+  if (recipientLimited(to)) return 'limited';
 
   const { subject, text, html } = buildEmail(kind, data);
   const controller = new AbortController();
@@ -140,6 +163,7 @@ const OUTCOME_COMMENTS = {
   sent: to => `Automatic confirmation email sent to ${to}.`,
   failed: to => `Automatic confirmation email to ${to} could not be sent. Check the Vercel function logs, and follow up manually.`,
   skipped: () => 'No automatic confirmation email was sent (auto-replies are not configured).',
+  limited: to => `No automatic confirmation email was sent to ${to}: this address already received several in the last hour.`,
 };
 
 // Adds the auto-reply outcome as a comment on the ClickUp task. Never throws.

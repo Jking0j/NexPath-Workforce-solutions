@@ -35,6 +35,10 @@ function clientIp(req) {
 
 function isRateLimited(ip) {
   const now = Date.now();
+  // Drop expired entries now and then so the map can't grow without bound.
+  if (hits.size > 5000) {
+    for (const [key, entry] of hits) if (now - entry.start > RATE_LIMIT_WINDOW_MS) hits.delete(key);
+  }
   const entry = hits.get(ip);
   if (!entry || now - entry.start > RATE_LIMIT_WINDOW_MS) {
     hits.set(ip, { start: now, count: 1 });
