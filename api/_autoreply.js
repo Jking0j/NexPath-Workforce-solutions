@@ -16,6 +16,9 @@
 //
 // If RESEND_API_KEY or AUTOREPLY_FROM is missing, auto-replies are simply
 // skipped — the submission itself still goes through to ClickUp.
+//
+// Either way, the outcome is added as a comment on the ClickUp task, so the
+// team can see whether the person got a confirmation without leaving ClickUp.
 
 const RESEND_API_KEY = process.env.RESEND_API_KEY;
 const AUTOREPLY_FROM = process.env.AUTOREPLY_FROM;
@@ -94,8 +97,9 @@ function buildEmail(kind, { name, ...data }) {
 
 // Never throws: a failed confirmation email is logged but must not fail a
 // submission that has already been saved to ClickUp.
+// Resolves to 'sent', 'skipped' (not configured) or 'failed'.
 async function sendAutoReply(kind, to, data) {
-  if (!RESEND_API_KEY || !AUTOREPLY_FROM) return false;
+  if (!RESEND_API_KEY || !AUTOREPLY_FROM) return 'skipped';
 
   const { subject, text, html } = buildEmail(kind, data);
   const controller = new AbortController();
@@ -121,15 +125,48 @@ async function sendAutoReply(kind, to, data) {
     });
     if (!res.ok) {
       console.error('Auto-reply send failed:', res.status, await res.text());
-      return false;
+      return 'failed';
     }
-    return true;
+    return 'sent';
   } catch (err) {
     console.error('Auto-reply send error:', err);
-    return false;
+    return 'failed';
   } finally {
     clearTimeout(timer);
   }
 }
 
-module.exports = { sendAutoReply, buildEmail };
+const OUTCOME_COMMENTS = {
+  sent: to => `Automatic confirmation email sent to ${to}.`,
+  failed: to => `Automatic confirmation email to ${to} could not be sent. Check the Vercel function logs, and follow up manually.`,
+  skipped: () => 'No automatic confirmation email was sent (auto-replies are not configured).',
+};
+
+// Adds the auto-reply outcome as a comment on the ClickUp task. Never throws.
+async function logAutoReplyToTask(taskId, token, outcome, to) {
+  if (!taskId || !token) return;
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), SEND_TIMEOUT_MS);
+  try {
+    const res = await fetch(`https://api.clickup.com/api/v2/task/${taskId}/comment`, {
+      method: 'POST',
+      headers: { 'Authorization': token, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ comment_text: OUTCOME_COMMENTS[outcome](to), notify_all: false }),
+      signal: controller.signal,
+    });
+    if (!res.ok) console.error('ClickUp comment failed:', res.status, await res.text());
+  } catch (err) {
+    console.error('ClickUp comment error:', err);
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+// Sends the confirmation, then records the outcome on the ClickUp task.
+async function autoReplyAndLog(kind, to, data, taskId, token) {
+  const outcome = await sendAutoReply(kind, to, data);
+  await logAutoReplyToTask(taskId, token, outcome, to);
+  return outcome;
+}
+
+module.exports = { sendAutoReply, autoReplyAndLog, buildEmail };

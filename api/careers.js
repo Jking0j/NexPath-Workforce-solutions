@@ -11,9 +11,10 @@
 //   CLICKUP_CAREERS_LIST_ID   — the List candidate applications should land in
 //
 // Once the task is created, a no-reply confirmation email is sent to the
-// candidate if the Resend variables are set — see /api/_autoreply.js.
+// candidate if the Resend variables are set, and the outcome is added as a
+// comment on the task — see /api/_autoreply.js.
 
-const { sendAutoReply } = require('./_autoreply');
+const { autoReplyAndLog } = require('./_autoreply');
 
 const CLICKUP_API_TOKEN = process.env.CLICKUP_API_TOKEN;
 const CLICKUP_CAREERS_LIST_ID = process.env.CLICKUP_CAREERS_LIST_ID;
@@ -207,7 +208,7 @@ module.exports = async (req, res) => {
   }
 
   // Awaited so the function isn't frozen mid-send; it never throws.
-  await sendAutoReply('careers', email, { name });
+  await autoReplyAndLog('careers', email, { name }, taskId, CLICKUP_API_TOKEN);
 
   return res.status(200).json({ success: true, taskId });
 };

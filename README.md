@@ -104,8 +104,9 @@ automatic "we've received it" email from a no-reply address. It's sent through
 
 If `RESEND_API_KEY` or `AUTOREPLY_FROM` isn't set, no email is sent and the forms
 work as before. If an email fails to send, the error is logged and the visitor still
-sees success, because their submission is already in ClickUp. The email wording
-lives in `api/_autoreply.js`. It only repeats the person's name (not their
+sees success, because their submission is already in ClickUp. Each ClickUp task also gets a comment saying
+whether the confirmation was sent, failed or skipped, so the team can tell who needs
+a manual follow-up. The email wording lives in `api/_autoreply.js`. It only repeats the person's name (not their
 message), so the form can't be used to send arbitrary text to a stranger's inbox.
 
 ---

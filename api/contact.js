@@ -9,9 +9,10 @@
 //   CLICKUP_LIST_ID    — the List new enquiries should land in as tasks
 //
 // Once the task is created, a no-reply confirmation email is sent to the
-// visitor if the Resend variables are set — see /api/_autoreply.js.
+// visitor if the Resend variables are set, and the outcome is added as a
+// comment on the task — see /api/_autoreply.js.
 
-const { sendAutoReply } = require('./_autoreply');
+const { autoReplyAndLog } = require('./_autoreply');
 
 const CLICKUP_API_TOKEN = process.env.CLICKUP_API_TOKEN;
 const CLICKUP_LIST_ID = process.env.CLICKUP_LIST_ID;
@@ -165,7 +166,7 @@ module.exports = async (req, res) => {
   }
 
   // Awaited so the function isn't frozen mid-send; it never throws.
-  await sendAutoReply('contact', email, { name, intent });
+  await autoReplyAndLog('contact', email, { name, intent }, taskId, CLICKUP_API_TOKEN);
 
   return res.status(200).json({ success: true, taskId });
 };
