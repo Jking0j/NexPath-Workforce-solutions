@@ -67,6 +67,20 @@ const ALLOWED_EXPERIENCE = ['', 'Entry-level', '1-3 years', '3-5 years', '5+ yea
 // is 4.5MB).
 const MAX_RESUME_BASE64_CHARS = 4_600_000;
 
+// Adds a comment to the task. Never throws.
+async function commentOnTask(taskId, text) {
+  try {
+    const r = await fetch(`https://api.clickup.com/api/v2/task/${taskId}/comment`, {
+      method: 'POST',
+      headers: { 'Authorization': CLICKUP_API_TOKEN, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ comment_text: text, notify_all: false }),
+    });
+    if (!r.ok) console.error('ClickUp comment failed:', r.status, await r.text());
+  } catch (err) {
+    console.error('ClickUp comment error:', err);
+  }
+}
+
 module.exports = async (req, res) => {
   if (req.method !== 'POST') {
     res.setHeader('Allow', 'POST');
@@ -184,31 +198,44 @@ module.exports = async (req, res) => {
   }
 
   // Attach the resume, if one was provided. The application is already
-  // logged at this point, so an attachment failure is reported in the
-  // server logs but doesn't fail the whole submission for the candidate.
+  // logged at this point, so an attachment failure doesn't fail the whole
+  // submission for the candidate. Instead it's retried once, then flagged
+  // with a comment on the task so the team knows to ask for the file.
+  let resumeAttached = null; // null = no resume sent
   if (resumeBase64 && resumeName) {
-    try {
-      const buffer = Buffer.from(resumeBase64, 'base64');
-      const blob = new Blob([buffer], { type: resumeType || 'application/octet-stream' });
-      const form = new FormData();
-      form.append('attachment', blob, resumeName);
-
-      const attachRes = await fetch(`https://api.clickup.com/api/v2/task/${taskId}/attachment`, {
-        method: 'POST',
-        headers: { 'Authorization': CLICKUP_API_TOKEN },
-        body: form,
-      });
-
-      if (!attachRes.ok) {
-        console.error('ClickUp attachment upload failed:', attachRes.status, await attachRes.text());
+    const buffer = Buffer.from(resumeBase64, 'base64');
+    let lastError = '';
+    resumeAttached = false;
+    for (let attempt = 1; attempt <= 2 && !resumeAttached; attempt++) {
+      try {
+        const form = new FormData();
+        form.append('attachment', new Blob([buffer], { type: resumeType || 'application/octet-stream' }), resumeName);
+        const attachRes = await fetch(`https://api.clickup.com/api/v2/task/${taskId}/attachment`, {
+          method: 'POST',
+          headers: { 'Authorization': CLICKUP_API_TOKEN },
+          body: form,
+        });
+        const detail = await attachRes.text();
+        if (attachRes.ok) {
+          resumeAttached = true;
+          console.log('ClickUp resume attached:', taskId, resumeName, buffer.length, 'bytes');
+        } else {
+          lastError = `ClickUp returned ${attachRes.status}`;
+          console.error('ClickUp attachment upload failed:', attempt, attachRes.status, detail);
+        }
+      } catch (err) {
+        lastError = err.message;
+        console.error('ClickUp attachment upload error:', attempt, err);
       }
-    } catch (err) {
-      console.error('ClickUp attachment upload error:', err);
+    }
+    if (!resumeAttached) {
+      await commentOnTask(taskId,
+        `Resume "${resumeName}" was submitted but could not be attached (${lastError}). Please ask the candidate to email it to contact@nexpathsolution.com.`);
     }
   }
 
   // Awaited so the function isn't frozen mid-send; it never throws.
   await autoReplyAndLog('careers', email, { name }, taskId, CLICKUP_API_TOKEN);
 
-  return res.status(200).json({ success: true, taskId });
+  return res.status(200).json({ success: true, taskId, resumeAttached });
 };
