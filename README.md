@@ -23,6 +23,7 @@ Palette: gold-and-white with charcoal contrast bands. Fonts load from Google Fon
 | `main.js` | Shared behaviour: nav, scroll-reveal, both forms, back-to-top, etc. |
 | `api/contact.js` | Vercel function — contact form → ClickUp task |
 | `api/careers.js` | Vercel function — careers form → ClickUp task (+ resume attachment) |
+| `api/_autoreply.js` | Shared helper — no-reply confirmation email to the person who submitted (not an endpoint) |
 | `site.webmanifest` | Web app manifest (uses the existing icon files) |
 | `robots.txt`, `sitemap.xml` | SEO |
 | `vercel.json` | Clean URLs, security headers, static asset caching |
@@ -83,6 +84,29 @@ function, which creates a task in a ClickUp List — no email service involved.
 
 Both functions include a honeypot field, a same-origin check, per-IP rate
 limiting and input length caps — see the comments at the top of each file.
+
+### No-reply confirmation emails (optional)
+
+After a submission is saved to ClickUp, the person who filled in the form gets an
+automatic "we've received it" email from a no-reply address. It's sent through
+[Resend](https://resend.com) via its HTTP API (still no npm dependencies).
+
+1. Sign up at Resend. Under **Domains**, add `nexpathsolution.com` and add the DNS
+   records it gives you (SPF/DKIM), so the mail isn't flagged as spam.
+2. Under **API Keys**, create a key with "Sending access".
+3. Add these in Vercel → Project → Settings → Environment Variables, then redeploy:
+
+   | Variable | Value |
+   |---|---|
+   | `RESEND_API_KEY` | the `re_...` key |
+   | `AUTOREPLY_FROM` | e.g. `NextPath <noreply@nexpathsolution.com>` |
+   | `AUTOREPLY_REPLY_TO` | optional — defaults to `contact@nexpathsolution.com` |
+
+If `RESEND_API_KEY` or `AUTOREPLY_FROM` isn't set, no email is sent and the forms
+work as before. If an email fails to send, the error is logged and the visitor still
+sees success, because their submission is already in ClickUp. The email wording
+lives in `api/_autoreply.js`. It only repeats the person's name (not their
+message), so the form can't be used to send arbitrary text to a stranger's inbox.
 
 ---
 

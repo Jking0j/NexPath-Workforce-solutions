@@ -9,6 +9,11 @@
 //   CLICKUP_API_TOKEN         — personal API token from ClickUp → Settings → Apps
 //                                (shared with /api/contact.js)
 //   CLICKUP_CAREERS_LIST_ID   — the List candidate applications should land in
+//
+// Once the task is created, a no-reply confirmation email is sent to the
+// candidate if the Resend variables are set — see /api/_autoreply.js.
+
+const { sendAutoReply } = require('./_autoreply');
 
 const CLICKUP_API_TOKEN = process.env.CLICKUP_API_TOKEN;
 const CLICKUP_CAREERS_LIST_ID = process.env.CLICKUP_CAREERS_LIST_ID;
@@ -200,6 +205,9 @@ module.exports = async (req, res) => {
       console.error('ClickUp attachment upload error:', err);
     }
   }
+
+  // Awaited so the function isn't frozen mid-send; it never throws.
+  await sendAutoReply('careers', email, { name });
 
   return res.status(200).json({ success: true, taskId });
 };

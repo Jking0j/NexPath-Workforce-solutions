@@ -7,6 +7,11 @@
 // Environment Variables (never commit these):
 //   CLICKUP_API_TOKEN  — personal API token from ClickUp → Settings → Apps
 //   CLICKUP_LIST_ID    — the List new enquiries should land in as tasks
+//
+// Once the task is created, a no-reply confirmation email is sent to the
+// visitor if the Resend variables are set — see /api/_autoreply.js.
+
+const { sendAutoReply } = require('./_autoreply');
 
 const CLICKUP_API_TOKEN = process.env.CLICKUP_API_TOKEN;
 const CLICKUP_LIST_ID = process.env.CLICKUP_LIST_ID;
@@ -131,6 +136,7 @@ module.exports = async (req, res) => {
     msg || '(none provided)',
   ].filter(Boolean).join('\n');
 
+  let taskId;
   try {
     const clickupRes = await fetch(`https://api.clickup.com/api/v2/list/${CLICKUP_LIST_ID}/task`, {
       method: 'POST',
@@ -152,9 +158,14 @@ module.exports = async (req, res) => {
       return res.status(502).json({ success: false, error: 'Could not reach ClickUp.' });
     }
 
-    return res.status(200).json({ success: true, taskId: data.id });
+    taskId = data.id;
   } catch (err) {
     console.error('ClickUp request failed:', err);
     return res.status(502).json({ success: false, error: 'Network error contacting ClickUp.' });
   }
+
+  // Awaited so the function isn't frozen mid-send; it never throws.
+  await sendAutoReply('contact', email, { name, intent });
+
+  return res.status(200).json({ success: true, taskId });
 };
